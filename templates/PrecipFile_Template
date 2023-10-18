@@ -1,0 +1,77 @@
+C*******************************************************************************
+C
+C                  INTEGRATED WATER FLOW MODEL (IWFM)
+C
+C*******************************************************************************
+C
+C                         PRECIPITATION DATA FILE
+C               Precipitation and Evapotranspiration Component
+C                           *** Version 4.0 ***
+C
+C
+C             Project : {{ project_name }} 
+C             Filename:  {{ file_name }}
+C
+C*******************************************************************************
+C                             File Description:
+C
+C   This data file contains the time-series rainfall at each rainfall station used
+C   in the model.
+C
+C*******************************************************************************
+C                         Rainfall Data Specifications
+C
+C   NRAIN ;  Number of rainfall stations (or pathnames if DSS files are used)
+C             used in the model 
+C   FACTRN;  Conversion factor for rainfall rate 
+C             It is used to convert only the spatial component of the unit; 
+C             DO NOT include the conversion factor for time component of the unit.
+C             * e.g. Unit of rainfall rate listed in this file = INCHES/MONTH
+C                    Consistent unit used in simulation        = FEET/DAY 
+C                    Enter FACTRN (INCHES/MONTH -> FEET/MONTH) = 8.33333E-02 
+C                     (conversion of MONTH -> DAY is performed automatically) 
+C   NSPRN ;  Number of time steps to update the precipitation data
+C             * Enter any number if time-tracking option is on
+C   NFQRN ;  Repetition frequency of the precipitation data 
+C             * Enter 0 if full time series data is supplied
+C             * Enter any number if time-tracking option is on
+C   DSSFL ;  The name of the DSS file for data input (maximum 50 characters); 
+C             * Leave blank if DSS file is not used for data input
+C
+C-------------------------------------------------------------------------------
+C         VALUE                                      DESCRIPTION
+C-------------------------------------------------------------------------------
+          {{ "{:<43d}".format(n_rain) }}/ NRAIN 
+          {{ "{:<43.5f}".format(conversion_factor) }}/ FACTRN         
+          {{ "{:<43d}".format(n_ts_update) }}/ NSPRN
+          {{ "{:<43d}".format(ts_frequency) }}/ NFQRN
+          {% if dss_file %}{{ "{:<43s}".format(dss_file) }}/ DSSFL{% else %}{{"{:<43s}".format(" ")}}/ DSSFL{% endif %}
+{% if not dss_file %}C-------------------------------------------------------------------------------
+C                             Rainfall Data 
+C                         (READ FROM THIS FILE)
+C
+C   List the rainfall rates for each of the rainfall station below, if it will 
+C   not be read from a DSS file (i.e. DSSFL is left blank above).
+C
+C   ITRN ;   Time 
+C   ARAIN;   Rainfall rate at the corresponding rainfall station; [L/T]
+C
+C-------------------------------------------------------------------------------     
+C ITRN    ARAIN(1)  ARAIN(2)  ARAIN(3) ...
+C-------------------------------------------------------------------------------
+{% for row in data %}{% for val in row %}{% if val is not number %}{{ val }}{% else %}{{ "{:>8.2f}".format(val) }}{% endif %}{% endfor %}
+{% endfor %}{% else %}C-------------------------------------------------------------------------------
+C                       Pathnames for Rainfall Data
+C                         (READ FROM DSS FILE)
+C
+C   List the pathnames for the rainfall data below, if it will be read 
+C   from a DSS file (i.e. DSSFL is specified above).
+C
+C   REC    ;  Time series record number 
+C   PATH   ;  Pathname for the time series record
+C
+C----------------------------------------------------------------------------------------------------------- 
+C   REC        PATH
+C-----------------------------------------------------------------------------------------------------------
+{% set counter = 1 %}{% for row in data %}    {{ "{:<11d}".format(counter) }}{{ row }}{% set counter = counter + 1 %}
+{% endfor %}{% endif %}
